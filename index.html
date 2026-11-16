@@ -1430,6 +1430,74 @@ var previewing=true;
     font-weight: 600 !important;
   }
 </style>
+
+<style id="avatar-friends-theme">
+  /* Avatar-inspired friends panel: violet glass, warm gold, electric purple and rose */
+  #mpp {
+    background: rgba(20, 17, 37, .34) !important;
+    backdrop-filter: blur(17px) saturate(145%) !important;
+    -webkit-backdrop-filter: blur(17px) saturate(145%) !important;
+    padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)) !important;
+  }
+  #mpp .box {
+    width: min(100%, 590px) !important;
+    max-width: 590px !important;
+    padding: 20px 22px 18px !important;
+    border: 1.5px solid rgba(255,255,255,.48) !important;
+    border-radius: 30px !important;
+    color: #fff !important;
+    text-align: left !important;
+    background: linear-gradient(145deg, rgba(48,40,72,.82), rgba(35,31,54,.76)) !important;
+    box-shadow: 0 24px 70px rgba(12,8,28,.38), inset 0 1px 1px rgba(255,255,255,.25), 0 0 24px rgba(193,160,255,.13) !important;
+  }
+  .mp-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:15px; }
+  .mp-head h3 { color:#fff !important; font-size:clamp(19px,3.5vw,27px) !important; font-weight:800 !important; margin:0 !important; letter-spacing:-.5px !important; }
+  #mpx { order:2; flex:0 0 46px; width:46px; height:46px; padding:0 !important; margin:0 !important; border-radius:50% !important; color:#fff !important; background:rgba(255,255,255,.12) !important; border:1px solid rgba(255,255,255,.35) !important; font-size:24px !important; box-shadow:inset 0 1px 1px rgba(255,255,255,.2) !important; }
+  .mp-sec { padding:15px 16px 16px !important; margin:0 0 13px !important; border-radius:22px !important; background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.075)) !important; border:1px solid rgba(255,255,255,.17) !important; box-shadow:inset 0 1px 1px rgba(255,255,255,.12) !important; }
+  .mp-lbl { display:block; margin:0 0 10px !important; color:#d9c8ff !important; font-size:12px !important; font-weight:800 !important; letter-spacing:.8px !important; text-transform:uppercase; }
+  .mp-profile { display:flex; align-items:center; gap:12px; min-width:0; padding:8px 10px; margin-bottom:10px; border-radius:999px; background:rgba(19,17,34,.54); border:1px solid rgba(255,255,255,.12); }
+  .mp-avatar { width:64px; height:64px; flex:0 0 64px; display:grid; place-items:center; overflow:hidden; border-radius:50%; font-size:35px; background:radial-gradient(circle at 35% 25%,#d8c4ff,#8062b8 58%,#33254d); border:2px solid rgba(255,255,255,.38); box-shadow:0 4px 15px rgba(0,0,0,.28),0 0 14px rgba(191,151,255,.28); }
+  #mpp .mp-profile input { flex:1 1 auto; min-width:0; width:0 !important; margin:0 !important; padding:8px 4px !important; border:0 !important; outline:0 !important; background:transparent !important; color:#fff !important; border-radius:0 !important; box-shadow:none !important; font-size:20px !important; font-weight:700 !important; }
+  #mpp .mp-profile input::placeholder { color:rgba(255,255,255,.55) !important; }
+  #mp-edit { flex:0 0 46px; width:46px; height:46px; padding:0 !important; margin:0 !important; border-radius:14px !important; color:#fff !important; background:rgba(255,255,255,.13) !important; border:1px solid rgba(255,255,255,.2) !important; font-size:21px !important; }
+  #mpc, #mpj, #mpl { min-height:54px; font-size:17px !important; font-weight:800 !important; transition:transform .15s ease,filter .15s ease,box-shadow .15s ease !important; }
+  #mpc { display:block; width:100%; margin:0 !important; border-radius:999px !important; color:#39220b !important; background:linear-gradient(180deg,#ffe66d 0%,#ffc52d 52%,#ffad19 100%) !important; border:2px solid #fff0a5 !important; box-shadow:0 7px 22px rgba(255,177,32,.42),inset 0 2px 1px rgba(255,255,255,.72) !important; }
+  .mp-row { display:flex; align-items:center; gap:9px; }
+  #mpp .mp-row input { flex:1 1 auto; min-width:0; margin:0 !important; min-height:52px; padding:12px 16px !important; border-radius:999px !important; color:#fff !important; background:rgba(22,18,39,.62) !important; border:1px solid rgba(255,255,255,.15) !important; box-shadow:inset 0 3px 9px rgba(0,0,0,.2) !important; }
+  #mpp .mp-row input::placeholder { color:#b9a5d1 !important; }
+  #mpj { flex:0 0 auto; min-width:112px; margin:0 !important; padding:10px 20px !important; color:#fff !important; border:1.5px solid #e6c9ff !important; border-radius:999px !important; background:linear-gradient(135deg,#b36aff,#7134ed) !important; box-shadow:0 5px 20px rgba(142,75,255,.48),inset 0 1px 1px rgba(255,255,255,.5) !important; }
+  #mpl { display:block; width:100%; margin:2px 0 12px !important; color:#fff !important; border:1.5px solid #ff8eae !important; border-radius:999px !important; background:linear-gradient(135deg,#f15b85,#c92d62) !important; box-shadow:0 6px 18px rgba(224,54,105,.3),inset 0 1px 1px rgba(255,255,255,.32) !important; }
+  .mp-stat { display:flex; align-items:center; gap:10px; padding:10px 13px !important; border-radius:999px !important; background:rgba(20,17,36,.52) !important; border:1px solid rgba(255,255,255,.12) !important; box-shadow:none !important; }
+  #mpm { flex:1 1 auto; margin:0 !important; color:rgba(255,255,255,.88) !important; font-size:13px !important; line-height:1.4; }
+  #mp-copy { flex:0 0 auto; color:#fff !important; background:rgba(255,255,255,.14) !important; border:1px solid rgba(255,255,255,.25) !important; border-radius:999px !important; }
+  #mpc:active,#mpj:active,#mpl:active { transform:scale(.975); filter:brightness(1.08); }
+  @media(max-width:420px) {
+    #mpp .box { padding:16px 14px 14px !important; border-radius:24px !important; }
+    .mp-sec { padding:12px !important; }
+    .mp-avatar { width:54px; height:54px; flex-basis:54px; font-size:30px; }
+    #mpj { min-width:82px; padding:9px 13px !important; }
+    #mpp .mp-profile input { font-size:17px !important; }
+  }
+</style>
+<script id="avatar-profile-enhancement">
+(function(){
+  const name=document.getElementById('mpn');
+  if(!name || name.dataset.avatarReady) return;
+  const profile=document.createElement('div');
+  profile.className='mp-profile';
+  const avatar=document.createElement('div');
+  avatar.className='mp-avatar'; avatar.setAttribute('aria-hidden','true'); avatar.textContent='🧝🏻‍♀️';
+  const edit=document.createElement('button');
+  edit.id='mp-edit'; edit.type='button'; edit.setAttribute('aria-label','Edit nickname'); edit.textContent='✎';
+  name.parentNode.insertBefore(profile,name);
+  profile.append(avatar,name,edit);
+  name.dataset.avatarReady='1';
+  name.placeholder='Your nickname';
+  edit.addEventListener('click',()=>{ name.focus(); name.readOnly=false; name.select(); });
+  name.addEventListener('blur',()=>{ name.readOnly=false; });
+})();
+</script>
+
 </body>
 
 
