@@ -734,4 +734,152 @@ var previewing=true;
  const n=performance.now(),dt=Math.min(.05,(n-pvL)/1000);pvL=n;pvT+=dt;const a=pvT*.16;
  cam.position.set(Math.sin(a)*6.5,2.2,Math.cos(a)*6.5);cam.lookAt(0,1.3,0);
  sun.position.set(7,14,6);sun.target.position.set(0,0,0);npcUpdate(dt,n/1000);R.render(S,cam)})()})();
-</script></body></html>
+</script><!-- Free Fire Style Voice Chat HUD & PeerJS Audio -->
+<style>
+  #vc-mic, #vc-spk {
+    position: fixed;
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 2px solid var(--accent);
+    background: var(--ui2);
+    color: var(--fg);
+    font: 700 18px system-ui, sans-serif;
+    backdrop-filter: blur(6px);
+    z-index: 30;
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  #vc-mic { right: calc(172px + env(safe-area-inset-right, 0px)); }
+  #vc-spk { right: calc(226px + env(safe-area-inset-right, 0px)); }
+  #vc-mic.on, #vc-spk.on { background: var(--accent); color: #fff; }
+  #vc-mic.muted, #vc-spk.muted { opacity: 0.65; }
+</style>
+
+<button id="vc-spk" class="on" aria-label="Toggle voice speaker">🔊</button>
+<button id="vc-mic" class="muted" aria-label="Toggle voice microphone">🎙️</button>
+<audio id="vc-audio" autoplay playsinline></audio>
+
+<script>
+(function () {
+  const micBtn = document.getElementById('vc-mic');
+  const spkBtn = document.getElementById('vc-spk');
+  const remoteAudio = document.getElementById('vc-audio');
+  const msgEl = document.getElementById('msg');
+
+  let localStream = null;
+  let micOn = false;
+  let spkOn = true;
+  const activeCalls = {};
+
+  function toast(text) {
+    if (!msgEl) return;
+    msgEl.textContent = text;
+    msgEl.style.opacity = '1';
+    clearTimeout(window._vcToast);
+    window._vcToast = setTimeout(() => { msgEl.style.opacity = '0'; }, 2500);
+  }
+
+  function getSilentStream() {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const dst = ctx.createMediaStreamDestination();
+    return dst.stream;
+  }
+
+  function bindCall(call) {
+    if (!call || activeCalls[call.peer]) return;
+    activeCalls[call.peer] = call;
+    call.on('stream', stream => {
+      remoteAudio.srcObject = stream;
+      remoteAudio.muted = !spkOn;
+      remoteAudio.play().catch(() => {});
+    });
+    call.on('close', () => { delete activeCalls[call.peer]; });
+    call.on('error', () => { delete activeCalls[call.peer]; });
+  }
+
+  function callPeer(peerId) {
+    const p = window._fqPeer;
+    if (!p || !peerId || activeCalls[peerId]) return;
+    const streamToSend = localStream || getSilentStream();
+    const call = p.call(peerId, streamToSend);
+    bindCall(call);
+  }
+
+  // Hook into PeerJS automatically
+  if (window.Peer) {
+    const OrigPeer = window.Peer;
+    window.Peer = function (...args) {
+      const p = new OrigPeer(...args);
+      window._fqPeer = p;
+
+      p.on('call', call => {
+        call.answer(localStream || getSilentStream());
+        bindCall(call);
+      });
+
+      p.on('connection', conn => {
+        conn.on('open', () => callPeer(conn.peer));
+      });
+
+      const origConnect = p.connect.bind(p);
+      p.connect = function (id, ...rest) {
+        const conn = origConnect(id, ...rest);
+        conn.on('open', () => callPeer(id));
+        return conn;
+      };
+      return p;
+    };
+    window.Peer.prototype = OrigPeer.prototype;
+  }
+
+  // Speaker toggle (Free Fire style)
+  spkBtn.addEventListener('click', () => {
+    spkOn = !spkOn;
+    remoteAudio.muted = !spkOn;
+    spkBtn.textContent = spkOn ? '🔊' : '🔇';
+    spkBtn.classList.toggle('on', spkOn);
+    spkBtn.classList.toggle('muted', !spkOn);
+    toast(spkOn ? 'Speaker ON' : 'Speaker Muted');
+  });
+
+  // Mic toggle (Free Fire style)
+  micBtn.addEventListener('click', async () => {
+    if (!localStream) {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+        });
+        micOn = true;
+        // Replace silent track with real mic track on existing calls
+        const micTrack = localStream.getAudioTracks()[0];
+        Object.values(activeCalls).forEach(call => {
+          const sender = call.peerConnection?.getSenders().find(s => s.track?.kind === 'audio');
+          if (sender && micTrack) sender.replaceTrack(micTrack);
+        });
+        // Call any connected peers if not already in a voice call
+        const p = window._fqPeer;
+        if (p && p.connections) {
+          Object.keys(p.connections).forEach(id => callPeer(id));
+        }
+      } catch (err) {
+        toast('Mic permission denied');
+        return;
+      }
+    } else {
+      micOn = !micOn;
+      localStream.getAudioTracks().forEach(t => { t.enabled = micOn; });
+    }
+
+    micBtn.textContent = micOn ? '🎤' : '🎙️';
+    micBtn.classList.toggle('on', micOn);
+    micBtn.classList.toggle('muted', !micOn);
+    toast(micOn ? 'Mic ON' : 'Mic Muted');
+  });
+})();
+</script>
+</body>
+</html>
