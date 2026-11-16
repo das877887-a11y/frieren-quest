@@ -1211,7 +1211,227 @@ var previewing=true;
     border: 1px dashed rgba(255, 255, 255, 0.3) !important;
   }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root, :root[data-theme="dark"], :root[data-theme="light"] {
+    --nm-surface: #f2f3f0;
+    --nm-surface-2: #e7e8e3;
+    --nm-mint: #a8e6cc;
+    --nm-mint-hi: #bcf0da;
+    --nm-coral: #f3a19d;
+    --nm-ink: #1d2220;
+    --nm-muted: #5e6662;
+    --nm-border: #dedfd9;
+    --nm-shadow-out: 0 8px 18px rgba(20, 26, 24, 0.14), 0 2px 5px rgba(20, 26, 24, 0.08), inset 0 1.5px 1px rgba(255, 255, 255, 0.9);
+    --nm-shadow-sm: 0 4px 10px rgba(20, 26, 24, 0.12), inset 0 1.5px 1px rgba(255, 255, 255, 0.85);
+    --nm-shadow-in: inset 0 2px 5px rgba(20, 26, 24, 0.14), inset 0 -1px 1px rgba(255, 255, 255, 0.85);
+    --accent: #a8e6cc !important;
+    --fg: #1d2220 !important;
+  }
+
+  html, body, button, input, select, h2, h3, p, span, div {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  }
+
+  /* Top HUD & Floating Action Buttons */
+  #hud {
+    background: var(--nm-surface) !important;
+    color: var(--nm-ink) !important;
+    border: 1.5px solid var(--nm-border) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--nm-shadow-sm) !important;
+    font-weight: 700 !important;
+  }
+
+  #fs, #chb, #mp, #vc-mic, #vc-spk, #view, #sgb, #shb, #dgb, #songb, #pet, #sing {
+    background: var(--nm-surface) !important;
+    color: var(--nm-ink) !important;
+    border: 1.5px solid var(--nm-border) !important;
+    box-shadow: var(--nm-shadow-sm) !important;
+    transition: transform 0.12s ease, background 0.15s ease !important;
+  }
+
+  #vc-mic.on, #vc-spk.on, #run.on {
+    background: var(--nm-mint) !important;
+    border-color: #8fd4b7 !important;
+    color: var(--nm-ink) !important;
+    opacity: 1 !important;
+  }
+
+  #vc-mic.muted, #vc-spk.muted {
+    background: var(--nm-surface-2) !important;
+    color: var(--nm-muted) !important;
+    opacity: 0.92 !important;
+  }
+
+  /* Tactile Controls: Joystick, Jump, Slap, Run */
+  #jb {
+    background: rgba(242, 243, 240, 0.78) !important;
+    border: 2px solid var(--nm-border) !important;
+    box-shadow: var(--nm-shadow-out) !important;
+  }
+  #jk {
+    background: var(--nm-mint) !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18) !important;
+  }
+  #jump, #slap, #run {
+    background: var(--nm-surface) !important;
+    color: var(--nm-ink) !important;
+    border: 2px solid var(--nm-border) !important;
+    box-shadow: var(--nm-shadow-out) !important;
+    font-weight: 800 !important;
+  }
+  #jump {
+    background: var(--nm-mint) !important;
+    border-color: #ffffff !important;
+  }
+  #jump:active, #slap:active, #run:active, #fs:active {
+    transform: scale(0.95);
+  }
+
+  /* Modals: Play with Friends (#mpp), Character Select (#sel), Stage/Shop */
+  #mpp, #sel, #sgp, #shp {
+    background: rgba(230, 232, 227, 0.55) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+
+  #mpp .box, #sel .box, #sgp .box, #shp .box {
+    background: var(--nm-surface) !important;
+    color: var(--nm-ink) !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 26px !important;
+    box-shadow: 0 22px 48px rgba(20, 26, 24, 0.22), inset 0 2px 1px #ffffff !important;
+  }
+
+  .mp-head h3, #sel h2, #sgp h3, #shp h3 {
+    color: var(--nm-ink) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.3px !important;
+  }
+
+  #mpx {
+    background: var(--nm-surface-2) !important;
+    color: var(--nm-ink) !important;
+    border: 1.5px solid var(--nm-border) !important;
+    box-shadow: var(--nm-shadow-sm) !important;
+  }
+
+  /* Recessed Sections & Inputs (matching Pinterest Inputs & Cards) */
+  .mp-sec {
+    background: var(--nm-surface-2) !important;
+    border: 1.5px solid var(--nm-border) !important;
+    border-radius: 18px !important;
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .mp-lbl {
+    color: var(--nm-muted) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.6px !important;
+  }
+
+  #mpp input, #sgp input, #sgp select {
+    background: #ebece7 !important;
+    color: var(--nm-ink) !important;
+    border: 1.5px solid #d5d7d0 !important;
+    border-radius: 999px !important;
+    padding: 10px 14px !important;
+    box-shadow: var(--nm-shadow-in) !important;
+  }
+  #mpp input::placeholder {
+    color: #88908c !important;
+  }
+  #mpp input:focus {
+    border-color: var(--nm-mint) !important;
+    box-shadow: var(--nm-shadow-in), 0 0 0 3px rgba(168, 230, 204, 0.55) !important;
+  }
+
+  /* Pill Buttons (Mint Primary, Coral Leave, Tactile Chips) */
+  #mpc, #mp-copy {
+    background: var(--nm-mint) !important;
+    color: var(--nm-ink) !important;
+    border: 1.5px solid #ffffff !important;
+    border-radius: 999px !important;
+    box-shadow: var(--nm-shadow-sm) !important;
+    font-weight: 800 !important;
+  }
+  #mpc:active, #mp-copy:active {
+    background: var(--nm-mint-hi) !important;
+    transform: scale(0.97);
+  }
+
+  #mpj, #sgp button, #shp button {
+    background: var(--nm-surface) !important;
+    color: var(--nm-ink) !important;
+    border: 1.5px solid var(--nm-border) !important;
+    border-radius: 999px !important;
+    box-shadow: var(--nm-shadow-sm) !important;
+    font-weight: 700 !important;
+  }
+
+  #mpl {
+    background: var(--nm-coral) !important;
+    color: var(--nm-ink) !important;
+    border: 1.5px solid #ffffff !important;
+    border-radius: 999px !important;
+    box-shadow: var(--nm-shadow-sm) !important;
+    font-weight: 800 !important;
+  }
+
+  /* Status Alert Pill (matching Pinterest Alerts) */
+  .mp-stat {
+    background: var(--nm-surface) !important;
+    border: 1.5px solid var(--nm-border) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--nm-shadow-sm) !important;
+  }
+  #mpm {
+    color: var(--nm-ink) !important;
+    font-weight: 600 !important;
+  }
+  #msg {
+    background: var(--nm-mint) !important;
+    color: var(--nm-ink) !important;
+    border: 1.5px solid #ffffff !important;
+    border-radius: 999px !important;
+    padding: 6px 16px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+    max-width: 88vw !important;
+    box-shadow: var(--nm-shadow-sm) !important;
+    text-shadow: none !important;
+    font-weight: 700 !important;
+  }
+  #msg:empty {
+    display: none !important;
+  }
+
+  /* Character Select Cards */
+  #sel .card {
+    background: var(--nm-surface-2) !important;
+    color: var(--nm-ink) !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 20px !important;
+    box-shadow: var(--nm-shadow-sm) !important;
+  }
+  #sel .card.on, #sel .card:hover {
+    border-color: var(--nm-mint) !important;
+    box-shadow: 0 0 0 3px rgba(168, 230, 204, 0.6), var(--nm-shadow-out) !important;
+  }
+  #selmsg {
+    color: var(--nm-muted) !important;
+    font-weight: 600 !important;
+  }
+</style>
 </body>
+
 
 
 </html>
