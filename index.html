@@ -404,23 +404,23 @@ function applyTo(c,p){const a=B,b=hipsBase,x=hipsX,z=hipsZ;B=c.B;hipsBase=c.hb;h
 function tag(n){const c=document.createElement('canvas');c.width=256;c.height=64;const q=c.getContext('2d');q.font='700 34px system-ui,sans-serif';q.textAlign='center';q.textBaseline='middle';q.fillStyle='rgba(16,32,46,.65)';q.fillRect(0,8,256,48);q.fillStyle='#fff';q.fillText(n,128,33);
  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));sp.scale.set(.9,.225,1);sp.position.y=2.1;sp.renderOrder=10;return sp}
 function mkRemote(p){const pr=p.presence,k=pr.c,src=LOADED[k];if(!src||!THREE.SkeletonUtils)return null;
- const sc=THREE.SkeletonUtils.clone(src.scene),b={};sc.traverse(o=>{if(o.isBone)b[o.name.replace(/^mixamorig[:_]?/,'')]=o;if(o.isMesh){o.frustumCulled=false;o.castShadow=true}});
+ const _sk=src.skin,_hd=src.B&&src.B.Head;if(_sk&&_hd)_hd.remove(_sk);const sc=THREE.SkeletonUtils.clone(src.scene),b={};if(_sk&&_hd)_hd.add(_sk);sc.traverse(o=>{if(o.isBone)b[o.name.replace(/^mixamorig[:_]?/,'')]=o;if(o.isMesh){o.frustumCulled=false;o.castShadow=true}});
  if(!b.Hips)return null;const gp=new THREE.Group();gp.rotation.order='YXZ';gp.add(sc);S.add(gp);const n=cname(pr.n);gp.add(tag(n));
- return{g:gp,c:{B:b,hb:src.hb,hx:src.hx,hz:src.hz},k,n,x:+pr.x||0,z:+pr.z||0,tx:+pr.x||0,tz:+pr.z||0,h:+pr.h||0,th:+pr.h||0,sp:0,w:0,ph:0,jt:-1,st:-1,pf:0,ls:pr.s|0,lj:pr.j|0,lf:pr.f|0,lh:0}}
+ return{g:gp,c:{B:b,hb:src.hb,hx:src.hx,hz:src.hz},k,n,x:+pr.x||0,z:+pr.z||0,tx:+pr.x||0,tz:+pr.z||0,h:+pr.h||0,th:+pr.h||0,sp:0,w:0,ph:0,jt:-1,st:-1,pf:0,ls:pr.s|0,lj:pr.j|0,lf:pr.f|0,lh:0,rm:pr.rm?1:0}}
 function gotHit(ux,uz,soft){if(pf>0)return;hardFall=true;stopRun();sfxSlap();sfxHit();pf=.001;psx=root.position.x;psz=root.position.z;pux=ux;puz=uz;heading=Math.atan2(-ux,-uz);jumpT=-1;slapT=-1;shk=.5;flash('Ouch!')}
 function sync(){if(!MP)return;const ps=MP.room.peers(),me=ps.find(q=>q.isMe&&q.sameTab),seen={},names=[];
  for(const p of ps){if(p.isMe)continue;const pr=p.presence;if(!pr||typeof pr.c!=='string'||pr.x===undefined)continue;seen[p.peer]=1;
   let r=RM[p.peer];if(r&&r.k!==pr.c){S.remove(r.g);delete RM[p.peer];r=null}
   if(!r){r=mkRemote(p);if(!r){delete seen[p.peer];continue}RM[p.peer]=r;flash('👥 '+r.n+' joined')}
-  r.tx=+pr.x||0;r.tz=+pr.z||0;r.th=+pr.h||0;if(r.skid!==(pr.sk||'')){r.skid=pr.sk||'';setSk(r.c,r.skid)}
+  r.tx=+pr.x||0;r.tz=+pr.z||0;r.th=+pr.h||0;r.rm=pr.rm?1:0;if(r.skid!==(pr.sk||'')){r.skid=pr.sk||'';setSk(r.c,r.skid)}
   if((pr.s|0)!==r.ls){r.ls=pr.s|0;r.st=0;sfxWhoosh()}
   if((pr.j|0)!==r.lj){r.lj=pr.j|0;r.jt=0}
   if((pr.f|0)!==r.lf){r.lf=pr.f|0;r.pf=.001}
-  const h=pr.hit;if(h&&me&&h.to===me.peer&&h.id!==r.lh){r.lh=h.id;gotHit(+h.ux||0,+h.uz||0)}
-  names.push(r.n)}
+  const h=pr.hit;if(h&&me&&h.to===me.peer&&h.id!==r.lh){r.lh=h.id;if((r.rm?1:0)===(inRoom?1:0))gotHit(+h.ux||0,+h.uz||0)}
+  names.push(r.n+((r.rm?1:0)===(inRoom?1:0)?'':(r.rm?' (in dog room)':' (in bazaar)')))}
  for(const id in RM)if(!seen[id]){S.remove(RM[id].g);delete RM[id]}
  mmsg('Room '+MP.code.toUpperCase()+' · '+(names.length?names.join(', ')+' here':'waiting for friends…')+' · share the code')}
-function rFrame(r,dt,t){const k=Math.min(1,dt*14),ox=r.x,oz=r.z;r.x+=(r.tx-r.x)*k;r.z+=(r.tz-r.z)*k;
+function rFrame(r,dt,t){r.g.visible=(r.rm?1:0)===(inRoom?1:0);const k=Math.min(1,dt*14),ox=r.x,oz=r.z;r.x+=(r.tx-r.x)*k;r.z+=(r.tz-r.z)*k;
  r.sp=lerp(r.sp,Math.hypot(r.x-ox,r.z-oz)/Math.max(dt,.001),Math.min(1,dt*8));const m=cl(r.sp/2.4,0,1);
  r.h+=((((r.th-r.h+Math.PI)%TAU)+TAU)%TAU-Math.PI)*Math.min(1,dt*12);
  r.w=lerp(r.w,m>.08&&!(r.pf>0)?1:0,Math.min(1,dt*8));r.ph=(r.ph+dt*(4+5*m)*r.w)%TAU;
@@ -430,27 +430,28 @@ function rFrame(r,dt,t){const k=Math.min(1,dt*14),ox=r.x,oz=r.z;r.x+=(r.tx-r.x)*
   p=Object.assign({},p,{ay:w*key([[0,0],[.3,-.7],[.5,2],[.65,2],[1,0]],u),aR:lerp(p.aR,0,w),zR:lerp(p.armZ,key([[0,1.3],[.25,.25],[.65,.25],[1,1.3]],u),w),sy:lerp(p.sy,key([[0,0],[.3,-.5],[.5,.6],[.65,.6],[1,0]],u),w),eR:lerp(p.eR,key([[0,-.2],[.3,-.9],[.5,-.1],[.65,-.1],[1,-.2]],u),w)})}}
  let rx=0,ky=0;if(r.pf>0){r.pf+=dt;const t1=Math.min(1,r.pf/.45),e=1-(1-t1)*(1-t1),th=r.pf<.45?e:r.pf<1.9?1:1-ss(1.9,2.5,r.pf);p=Object.assign({},p,{aL:-2.2*th,aR:-2.2*th});rx=-1.5*th;ky=.12*th+(r.pf<.45?2.8*t1*(1-t1):0);if(r.pf>=2.5)r.pf=0}
  applyTo(r.c,p);r.g.position.set(r.x,lift+ky,r.z);r.g.rotation.set(rx,r.h,0)}
-function mpHit(){if(!MP)return;const fx=Math.sin(heading),fz=Math.cos(heading);
- for(const id in RM){const r=RM[id],dx=r.x-root.position.x,dz=r.z-root.position.z,l=Math.hypot(dx,dz);
-  if(l<1.6&&l>0&&(dx*fx+dz*fz)/l>.4&&!(r.pf>0)){sfxSlap();shk=.35;MP.room.presence({hit:{to:id,id:++MP.hid,ux:+(dx/l).toFixed(3),uz:+(dz/l).toFixed(3)}});setTimeout(()=>MP&&MP.room.presence({hit:null}),900);flash('Slap! 👋');break}}}
+function mpHit(){if(!MP)return;const fx=Math.sin(heading),fz=Math.cos(heading);let bi=null,bl=9;
+ for(const id in RM){const r=RM[id];if((r.rm?1:0)!==(inRoom?1:0))continue;const dx=r.x-root.position.x,dz=r.z-root.position.z,l=Math.hypot(dx,dz);if(l<1.6&&l>0&&(dx*fx+dz*fz)/l>.4&&!(r.pf>0)&&l<bl){bl=l;bi=id}}
+ if(bi!==null){const r=RM[bi],dx=r.x-root.position.x,dz=r.z-root.position.z,l=Math.hypot(dx,dz);sfxSlap();shk=.35;MP.room.presence({hit:{to:bi,id:++MP.hid,ux:+(dx/l).toFixed(3),uz:+(dz/l).toFixed(3)}});clearTimeout(MP.hc);MP.hc=setTimeout(()=>MP&&MP.room.presence({hit:null}),900);flash('Slap! 👋')}}
 async function mpLeave(){if(!MP)return;const m=MP;MP=null;try{m.off&&m.off()}catch(e){}for(const id in RM){S.remove(RM[id].g);delete RM[id]}try{await m.room.leave()}catch(e){}}
 function mpRoom(peer,host,code,firstConn){
- const remotes={},conns=new Map(),listeners=new Set();let local={},closed=false;
+ const remotes={},seenAt={},conns=new Map(),listeners=new Set();let local={},closed=false;
  const emit=()=>{for(const fn of listeners){try{fn()}catch(e){}}};
  const snapshot=()=>({t:'snapshot',players:[{peer:peer.id,presence:local},...Object.keys(remotes).map(id=>({peer:id,presence:remotes[id]}))]});
  const sendSnapshot=()=>{if(!host||closed)return;const packet=snapshot();for(const c of conns.values())if(c.open){try{c.send(packet)}catch(e){}}emit()};
  const handle=(c,msg)=>{if(!msg||typeof msg!=='object')return;
   if(host){if(msg.t==='hello'){remotes[c.peer]=remotes[c.peer]||{};sendSnapshot()}
-   else if(msg.t==='presence'){remotes[c.peer]=Object.assign({},remotes[c.peer]||{},msg.p||{});sendSnapshot()}}
+   else if(msg.t==='presence'){const pp=msg.p||{};if(pp.u)for(const id of Object.keys(remotes))if(id!==c.peer&&remotes[id]&&remotes[id].u===pp.u){delete remotes[id];delete seenAt[id];const old=conns.get(id);conns.delete(id);if(old)try{old.close()}catch(e){}}remotes[c.peer]=Object.assign({},remotes[c.peer]||{},pp);seenAt[c.peer]=Date.now();sendSnapshot()}}
   else if(msg.t==='snapshot'){for(const id of Object.keys(remotes))delete remotes[id];for(const item of msg.players||[])if(item.peer!==peer.id)remotes[item.peer]=item.presence||{};emit()}
  };
  const attach=(c)=>{conns.set(c.peer,c);c.on('data',msg=>handle(c,msg));c.on('close',()=>{conns.delete(c.peer);delete remotes[c.peer];if(host)sendSnapshot();else{emit();mmsg('Connection to the room host was lost.')}});c.on('error',e=>mmsg('Connection issue: '+(e&&e.message||'please try again')));c.on('open',()=>{if(host){remotes[c.peer]=remotes[c.peer]||{};sendSnapshot()}else{try{c.send({t:'hello'})}catch(e){}if(Object.keys(local).length)try{c.send({t:'presence',p:local})}catch(e){}}});};
- if(host){peer.on('connection',attach)}else if(firstConn)attach(firstConn);
+ const pruner=setInterval(()=>{if(!host||closed)return;const now=Date.now();let ch=false;for(const id of Object.keys(seenAt)){const age=now-seenAt[id];if(age>5000&&remotes[id]){delete remotes[id];ch=true}if(age>30000){delete seenAt[id];const k=conns.get(id);if(k){conns.delete(id);try{k.close()}catch(e){}}}}if(ch)sendSnapshot()},2000);
+  if(host){peer.on('connection',attach)}else if(firstConn)attach(firstConn);
  const room={
   peers:()=>[{peer:peer.id,isMe:true,sameTab:true,presence:local},...Object.keys(remotes).map(id=>({peer:id,isMe:false,sameTab:false,presence:remotes[id]}))],
   onPeers:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},
   presence:data=>{local=Object.assign({},local,data||{});if(host)sendSnapshot();else{const c=conns.get(code);if(c&&c.open)try{c.send({t:'presence',p:local})}catch(e){}}return Promise.resolve()},
-  leave:async()=>{closed=true;listeners.clear();for(const c of conns.values())try{c.close()}catch(e){}conns.clear();try{peer.destroy()}catch(e){}}
+  leave:async()=>{closed=true;clearInterval(pruner);listeners.clear();for(const c of conns.values())try{c.close()}catch(e){}conns.clear();try{peer.destroy()}catch(e){}}
  };
  return room;
 }
@@ -458,11 +459,11 @@ function peerReady(peer){return new Promise((resolve,reject)=>{if(peer.open)retu
 function newRoomCode(){return 'fq'+Math.random().toString(36).slice(2,10)}
 async function mpCreate(){await mpLeave();const code=newRoomCode();let peer=null;mmsg('Creating room…');try{if(!window.Peer)throw new Error('Peer connection library did not load. Check your internet connection and reload.');peer=new Peer(code);await peerReady(peer);const room=mpRoom(peer,true,code);MP={room,code,sid:0,jid:0,fid:0,hid:0,was:false,off:room.onPeers(sync)};mq('mpk').value=code;mq('mpk').readOnly=true;mmsg('Room ready! Share code '+code.toUpperCase()+' with your friend.');sync()}catch(e){try{if(peer)peer.destroy()}catch(_){}mmsg('Could not create room: '+((e&&e.message)||e))}}
 async function mpJoin(code){code=String(code||'').toLowerCase().replace(/[^a-z0-9_.-]/g,'').slice(0,12);if(!code){mmsg('Enter a room code first.');return}await mpLeave();mq('mpk').readOnly=false;let peer=null;mmsg('Connecting to '+code.toUpperCase()+'…');try{if(!window.Peer)throw new Error('Peer connection library did not load. Check your internet connection and reload.');peer=new Peer();await peerReady(peer);const conn=peer.connect(code,{reliable:true});await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Room not found or connection timed out. Check the code and try again.')),15000);conn.once('open',()=>{clearTimeout(timer);resolve()});conn.once('error',e=>{clearTimeout(timer);reject(e)})});const room=mpRoom(peer,false,code,conn);MP={room,code,sid:0,jid:0,fid:0,hid:0,was:false,off:room.onPeers(sync)};mq('mpk').value=code;room.presence({});mmsg('Connected!');sync()}catch(e){try{if(peer)peer.destroy()}catch(_){}mmsg('Could not join: '+((e&&e.message)||e))}}
-const _slap=slap,_jump=jump;
+const MYID=(()=>{try{let v=sessionStorage.getItem('fqid');if(!v){v=Math.random().toString(36).slice(2,10);sessionStorage.setItem('fqid',v)}return v}catch(e){return Math.random().toString(36).slice(2,10)}})();const _slap=slap,_jump=jump;
 slap=function(){const w=slapT;_slap();if(w<0&&slapT===0&&MP){MP.sid++;setTimeout(mpHit,250)}};
 jump=function(){const w=jumpT;_jump();if(w<0&&jumpT===0&&MP)MP.jid++};
 setInterval(()=>{if(!MP||!cur)return;if(pf>0&&!MP.was)MP.fid++;MP.was=pf>0;const k=Object.keys(LOADED).find(q=>LOADED[q]===cur);
- MP.room.presence({x:+root.position.x.toFixed(2),z:+root.position.z.toFixed(2),h:+heading.toFixed(2),c:k,n:cname(mq('mpn').value),s:MP.sid,j:MP.jid,f:MP.fid,sk:EQ}).catch(()=>{})},100);
+ MP.room.presence({x:+root.position.x.toFixed(2),z:+root.position.z.toFixed(2),h:+heading.toFixed(2),c:k,n:cname(mq('mpn').value),s:MP.sid,j:MP.jid,f:MP.fid,sk:EQ,rm:inRoom?1:0,u:MYID}).catch(()=>{})},100);
 setInterval(sync,700);
 {let L=performance.now();(function mt(){requestAnimationFrame(mt);const n=performance.now(),dt=Math.min(.05,(n-L)/1000);L=n;for(const id in RM)rFrame(RM[id],dt,n/1000)})()}
 try{mq('mpn').value=localStorage.getItem('pname')||''}catch(e){}
