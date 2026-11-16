@@ -405,7 +405,7 @@ function tag(n){const c=document.createElement('canvas');c.width=256;c.height=64
  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));sp.scale.set(.9,.225,1);sp.position.y=2.1;sp.renderOrder=10;return sp}
 function mkRemote(p){const pr=p.presence,k=pr.c,src=LOADED[k];if(!src||!THREE.SkeletonUtils)return null;
  const _sk=src.skin,_hd=src.B&&src.B.Head;if(_sk&&_hd)_hd.remove(_sk);const sc=THREE.SkeletonUtils.clone(src.scene),b={};if(_sk&&_hd)_hd.add(_sk);sc.traverse(o=>{if(o.isBone)b[o.name.replace(/^mixamorig[:_]?/,'')]=o;if(o.isMesh){o.frustumCulled=false;o.castShadow=true}});
- if(!b.Hips)return null;const gp=new THREE.Group();gp.rotation.order='YXZ';gp.add(sc);S.add(gp);const n=cname(pr.n);gp.add(tag(n));
+ if(!b.Hips)return null;const gp=new THREE.Group();gp.rotation.order='YXZ';gp.add(sc);S.add(gp);const n=cname(pr.n);gp.add(tag(n+(pr.lv>1?' Lv'+Math.min(99,pr.lv|0):'')));
  return{g:gp,c:{B:b,hb:src.hb,hx:src.hx,hz:src.hz},k,n,x:+pr.x||0,z:+pr.z||0,tx:+pr.x||0,tz:+pr.z||0,h:+pr.h||0,th:+pr.h||0,sp:0,w:0,ph:0,jt:-1,st:-1,pf:0,ls:pr.s|0,lj:pr.j|0,lf:pr.f|0,lh:0,rm:pr.rm?1:0}}
 function gotHit(ux,uz,soft){if(pf>0)return;hardFall=true;stopRun();sfxSlap();sfxHit();pf=.001;psx=root.position.x;psz=root.position.z;pux=ux;puz=uz;heading=Math.atan2(-ux,-uz);jumpT=-1;slapT=-1;shk=.5;flash('Ouch!')}
 function sync(){if(!MP)return;const ps=MP.room.peers(),me=ps.find(q=>q.isMe&&q.sameTab),seen={},names=[];
@@ -463,7 +463,7 @@ const MYID=(()=>{try{let v=sessionStorage.getItem('fqid');if(!v){v=Math.random()
 slap=function(){const w=slapT;_slap();if(w<0&&slapT===0&&MP){MP.sid++;setTimeout(mpHit,250)}};
 jump=function(){const w=jumpT;_jump();if(w<0&&jumpT===0&&MP)MP.jid++};
 setInterval(()=>{if(!MP||!cur)return;if(pf>0&&!MP.was)MP.fid++;MP.was=pf>0;const k=Object.keys(LOADED).find(q=>LOADED[q]===cur);
- MP.room.presence({x:+root.position.x.toFixed(2),z:+root.position.z.toFixed(2),h:+heading.toFixed(2),c:k,n:cname(mq('mpn').value),s:MP.sid,j:MP.jid,f:MP.fid,sk:EQ,rm:inRoom?1:0,u:MYID}).catch(()=>{})},100);
+ MP.room.presence({x:+root.position.x.toFixed(2),z:+root.position.z.toFixed(2),h:+heading.toFixed(2),c:k,n:cname(mq('mpn').value),lv:qLV,s:MP.sid,j:MP.jid,f:MP.fid,sk:EQ,rm:inRoom?1:0,u:MYID}).catch(()=>{})},100);
 setInterval(sync,700);
 {let L=performance.now();(function mt(){requestAnimationFrame(mt);const n=performance.now(),dt=Math.min(.05,(n-L)/1000);L=n;for(const id in RM)rFrame(RM[id],dt,n/1000)})()}
 try{mq('mpn').value=localStorage.getItem('pname')||''}catch(e){}
@@ -477,6 +477,22 @@ mq('mpl').addEventListener('click',()=>mpLeave().then(()=>mmsg('You left the roo
 // ---- market quests: take an errand from a shopkeeper, fetch goods from another stall, deliver for coins
 const GN=['Saffron','Chili','Mint','Turmeric','Cinnamon','Ginger','Cardamom','Pepper','Cumin','Clove'],SHOPS=NPCS.filter(n=>!n.col);
 let coins=0;try{coins=+localStorage.getItem('coins')||0}catch(e){}
+let qXP=0,qLV=1;try{qXP=+localStorage.getItem('xp')||0}catch(e){}
+const qNeed=L=>50+25*(L-1);
+function qCalc(){let L=1,r=qXP;while(r>=qNeed(L)){r-=qNeed(L);L++}qLV=L;return [L,r,qNeed(L)]}
+qCalc();
+function qAddXP(n){const b=qLV;qXP+=n;try{localStorage.setItem('xp',qXP)}catch(e){}qCalc();let m='+'+n+' XP';if(qLV>b){const g=20*(qLV-b);coins+=g;try{localStorage.setItem('coins',coins)}catch(e){}m='\u{1F389} Level up! Level '+qLV+' (+'+g+' coins)';setTimeout(()=>{try{sfxBlip(.25,784);setTimeout(()=>sfxBlip(.25,988),120);setTimeout(()=>sfxBlip(.3,1319),240)}catch(e){}},300)}setTimeout(()=>{try{flash(m)}catch(e){}},1600)}
+{const st=document.createElement('style');st.textContent='#qpb{position:fixed;right:calc(64px + env(safe-area-inset-right,0px));top:calc(112px + env(safe-area-inset-top,0px));width:44px;height:44px;border-radius:12px;border:2px solid var(--accent);background:var(--ui2);color:var(--fg);font:700 20px system-ui,sans-serif;z-index:30;touch-action:none;user-select:none;backdrop-filter:blur(6px)}#qpp{display:none;position:fixed;inset:0;z-index:41;align-items:center;justify-content:center;background:rgba(16,32,46,.45);backdrop-filter:blur(5px);padding:12px;box-sizing:border-box}#qpp .box{background:var(--ui2);color:var(--fg);border:2px solid var(--accent);border-radius:18px;padding:16px 18px;width:320px;max-width:92vw;text-align:center;backdrop-filter:blur(10px);font:600 15px system-ui,sans-serif}#qpp h3{margin:0 0 4px;font:700 20px system-ui,sans-serif}#qpp .bar{height:14px;border-radius:8px;background:var(--ui);border:2px solid var(--accent);overflow:hidden;margin:8px 0 4px}#qpp .fill{height:100%;background:var(--accent);width:0}#qpp p{margin:6px 0}#qpp button{margin-top:8px;padding:10px 22px;border-radius:12px;border:2px solid var(--accent);background:var(--ui);color:var(--fg);font:700 14px system-ui,sans-serif}';document.head.appendChild(st);
+ const pb=document.createElement('button');pb.id='qpb';pb.textContent='\u{1F3C5}';pb.setAttribute('aria-label','Profile');
+ const pp=document.createElement('div');pp.id='qpp';pp.innerHTML='<div class="box"><h3 id="qpn"></h3><p id="qpc"></p><p><b id="qpl"></b></p><div class="bar"><div class="fill" id="qpf"></div></div><p id="qpx"></p><p id="qpq"></p><button id="qpk">Close</button></div>';
+ document.body.append(pb,pp);
+ const g=id=>document.getElementById(id);
+ function qOpen(){const [L,r,nd]=qCalc();let nm='Friend',cn='';try{nm=localStorage.getItem('pname')||'Friend';const ck=localStorage.getItem('char');cn=ck&&CH_DATA[ck]?CH_DATA[ck].name:''}catch(e){}
+  g('qpn').textContent=nm;g('qpc').textContent=cn;g('qpl').textContent='Level '+L;g('qpf').style.width=Math.round(r/nd*100)+'%';g('qpx').textContent=r+' / '+nd+' XP to next level';g('qpq').textContent='\u{1FA99} '+coins+' coins \u00b7 Quests done: '+QS.done;pp.style.display='flex'}
+ pb.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();qOpen()});
+ g('qpk').addEventListener('click',()=>{pp.style.display='none'});
+ pp.addEventListener('click',e=>{if(e.target===pp)pp.style.display='none'})}
+
 const CN=[],cgeo=new THREE.CylinderGeometry(.18,.18,.04,16),cmat=new THREE.MeshStandardMaterial({color:0xffc400,roughness:.3,metalness:.6,emissive:0xaa7a00,emissiveIntensity:.4});
 function cplace(c){let x,z,ok;do{x=(Math.random()-.5)*7.4;z=(Math.random()-.5)*16;ok=true;for(let i=0;i<NSTAT;i++)if(Math.hypot(x-COL[i].x,z-COL[i].z)<COL[i].r+.5)ok=false}while(!ok);c.position.set(x,.6,z)}
 for(let i=0;i<10;i++){const c=new THREE.Mesh(cgeo,cmat);c.rotation.x=Math.PI/2;cplace(c);S.add(c);CN.push(c)}
@@ -484,7 +500,7 @@ function coinTick(t){for(const c of CN){c.rotation.z=t*2.5;c.position.y=.6+.08*M
  if(Math.hypot(root.position.x-c.position.x,root.position.z-c.position.z)<.7){coins++;try{localStorage.setItem('coins',coins)}catch(e){}sfxBlip(.2,880);cplace(c)}}}
 function etex(ch){const c=document.createElement('canvas');c.width=c.height=128;const q=c.getContext('2d');q.font='96px sans-serif';q.textAlign='center';q.textBaseline='middle';q.fillText(ch,64,68);return new THREE.CanvasTexture(c)}
 const QT={a:etex('❗'),b:etex('❓'),c:etex('✅')},QM=new THREE.Sprite(new THREE.SpriteMaterial({map:QT.a,depthTest:false}));QM.scale.set(.42,.42,1);QM.renderOrder=11;S.add(QM);
-const QS={st:0,gi:0,ta:0,done:0};
+const QS={st:0,gi:0,ta:0,done:(()=>{try{return +localStorage.getItem('quests')||0}catch(e){return 0}})()};
 function newQuest(){let i;do{i=Math.floor(Math.random()*SHOPS.length)}while(i===QS.gi);QS.gi=i;QS.st=0}
 (function ql(){requestAnimationFrame(ql);if(!cur||previewing||!SHOPS.length||inRoom)return;coinTick(performance.now()/1000);
  const goal=SHOPS[QS.st===1?QS.ta:QS.gi],gp=goal.g.position,d=Math.hypot(root.position.x-gp.x,root.position.z-gp.z);
@@ -492,8 +508,8 @@ function newQuest(){let i;do{i=Math.floor(Math.random()*SHOPS.length)}while(i===
  if(d<1.9){
   if(QS.st===0){do{QS.ta=Math.floor(Math.random()*SHOPS.length)}while(QS.ta===QS.gi);QS.st=1;flash('Please fetch '+GN[QS.ta]+' from the ❓ stall!');sfxBlip(.2,520)}
   else if(QS.st===1){QS.st=2;flash('Got the '+GN[QS.ta]+'! Take it back to the ✅ shopkeeper');sfxBlip(.2,620)}
-  else{coins+=10;QS.done++;try{localStorage.setItem('coins',coins)}catch(e){}flash('Quest complete! +10 🪙');sfxBlip(.25,660);setTimeout(()=>sfxBlip(.25,990),110);newQuest()}}
- const m=Math.round(d),rel=Math.atan2(gp.x-root.position.x,gp.z-root.position.z)-yaw,ARW='<span style="display:inline-block;transform:rotate('+(-rel)+'rad)">⬆</span> ';document.getElementById('hud').innerHTML=clk()+' · 🪙 '+coins+' · Quests '+QS.done+'<br>'+ARW+(QS.st===0?'Talk to the ❗ shopkeeper ('+m+' m)':QS.st===1?'Fetch '+GN[QS.ta]+' from the ❓ stall ('+m+' m)':'Deliver '+GN[QS.ta]+' to the ✅ shopkeeper ('+m+' m)')})();
+  else{coins+=10;QS.done++;try{localStorage.setItem('coins',coins);localStorage.setItem('quests',QS.done)}catch(e){}qAddXP(25);flash('Quest complete! +10 🪙');sfxBlip(.25,660);setTimeout(()=>sfxBlip(.25,990),110);newQuest()}}
+ const m=Math.round(d),rel=Math.atan2(gp.x-root.position.x,gp.z-root.position.z)-yaw,ARW='<span style="display:inline-block;transform:rotate('+(-rel)+'rad)">⬆</span> ';document.getElementById('hud').innerHTML=clk()+' · 🪙 '+coins+' · Quests '+QS.done+' \u00b7 \u2b50 Lv '+qLV+'<br>'+ARW+(QS.st===0?'Talk to the ❗ shopkeeper ('+m+' m)':QS.st===1?'Fetch '+GN[QS.ta]+' from the ❓ stall ('+m+' m)':'Deliver '+GN[QS.ta]+' to the ✅ shopkeeper ('+m+' m)')})();
 
 // ---- singing stage: walk up to it, browse/create rooms (public open, public + approval, or private by code)
 {const st=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.7,.3,24),new THREE.MeshStandardMaterial({color:0x8a5a34,roughness:.9}));st.position.set(0,.15,-8.2);st.receiveShadow=true;S.add(st);
