@@ -488,10 +488,10 @@ function qAddXP(n){const b=qLV;qXP+=n;try{localStorage.setItem('xp',qXP)}catch(e
  document.body.append(pb,pp);
  const g=id=>document.getElementById(id);
  function qOpen(){const [L,r,nd]=qCalc();let nm='Friend',cn='';try{nm=localStorage.getItem('pname')||'Friend';const ck=localStorage.getItem('char');cn=ck&&CH_DATA[ck]?CH_DATA[ck].name:''}catch(e){}
-  g('qpn').textContent=nm;g('qpc').textContent=cn;g('qpl').innerHTML='<small>LV</small>'+L;g('qpf').style.width=Math.max(4,Math.round(r/nd*100))+'%';g('qpx').textContent=r+' / '+nd+' XP to next level';g('qp1').textContent='\u{1FA99} '+coins+' coins';g('qp2').textContent='\u2705 '+QS.done+' quests';pp.style.display='flex'}
- pb.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();qOpen()});
+  g('qpn').textContent=nm;g('qpc').textContent=cn;g('qpl').innerHTML='<small>LV</small>'+L;g('qpf').style.width=Math.max(4,Math.round(r/nd*100))+'%';g('qpx').textContent=r+' / '+nd+' XP to next level';g('qp1').textContent='\u{1FA99} '+coins+' coins';g('qp2').textContent='\u2705 '+QS.done+' quests';pp.style.display='flex';pp.dataset.t=Date.now()}
+ pb.addEventListener('pointerdown',e=>{e.stopPropagation()});pb.addEventListener('click',e=>{e.stopPropagation();qOpen()});
  g('qpk').addEventListener('click',()=>{pp.style.display='none'});
- pp.addEventListener('click',e=>{if(e.target===pp)pp.style.display='none'})}
+ pp.addEventListener('click',e=>{if(e.target===pp&&Date.now()-(+pp.dataset.t||0)>400)pp.style.display='none'})}
 
 const CN=[],cgeo=new THREE.CylinderGeometry(.18,.18,.04,16),cmat=new THREE.MeshStandardMaterial({color:0xffc400,roughness:.3,metalness:.6,emissive:0xaa7a00,emissiveIntensity:.4});
 function cplace(c){let x,z,ok;do{x=(Math.random()-.5)*7.4;z=(Math.random()-.5)*16;ok=true;for(let i=0;i<NSTAT;i++)if(Math.hypot(x-COL[i].x,z-COL[i].z)<COL[i].r+.5)ok=false}while(!ok);c.position.set(x,.6,z)}
